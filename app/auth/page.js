@@ -13,14 +13,10 @@ import {
 import CircularTimer from "../components/CircularTimer";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  setIsLoading,
-  setIsProcessStart,
-  setIsSystemSpeaking,
   setNextQuestion,
   setPromptQuestionData,
   setQuestionCount,
   setScorePrompt,
-  setShowSpinerTimer,
 } from "../store/counterSlice";
 import { Instructions } from "../components/Instructions";
 import { LoadingAnimation } from "../components/Loading";
@@ -30,52 +26,50 @@ export default function Interaction() {
   const dispatch = useDispatch();
   const [showReviewButton, setShowReviewButton] = useState(false);
   const [showResult, setShowResult] = useState(undefined);
-  const {
-    isLoading,
-    isProcessStart,
-    isSystemSpeaking,
-    promptQuestion,
-    questionCount,
-    showSpinerTimer,
-    nextQuestion,
-    scorePrompt,
-  } = useSelector((state) => state.counterSlice);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isProcessStart, setIsProcessStart] = useState(false);
+  const [isSystemSpeaking, setIsSystemSpeaking] = useState(false);
+  const [showSpinerTimer, setShowSpinerTimer] = useState(false);
+
+  const { promptQuestion, questionCount, nextQuestion, scorePrompt } =
+    useSelector((state) => state.counterSlice);
 
   let obj = [...promptQuestion];
 
   const handleStart = async () => {
-    await startRecording();
-    dispatch(setIsProcessStart(true));
+    const isOK = await startRecording();
+    if (isOK) {
+      setIsProcessStart(true);
+      //! system Intro
+      setIsLoading(true);
+      const voice = await createSpeech(
+        "नमस्कार, मै ऑनमेटा की वर्चुअल असिस्टेंट हूं  में आपसे कुछ सवाल करुँगी , और आपके पास हर सवाल के लिए दस सेकण्ड्स होंगे "
+      );
+      try {
+        const audioBlob = new Blob([voice.data], { type: "audio/mpeg" });
+        const audioUrl = URL.createObjectURL(audioBlob);
+        const audio = new Audio(audioUrl);
+        setIsLoading(false);
+        setIsSystemSpeaking(true);
+        await playAudio(audio);
+        setIsSystemSpeaking(false);
+      } catch (error) {
+        console.error("Error playing audio:", error);
+      }
 
-    //! system Intro
-    dispatch(setIsLoading(true));
-    const voice = await createSpeech(
-      "नमस्कार, मै ऑनमेटा की वर्चुअल असिस्टेंट हूं  में आपसे कुछ सवाल करुँगी , और आपके पास हर सवाल के लिए दस सेकण्ड्स होंगे "
-    );
-    try {
-      const audioBlob = new Blob([voice.data], { type: "audio/mpeg" });
-      const audioUrl = URL.createObjectURL(audioBlob);
-      const audio = new Audio(audioUrl);
-      dispatch(setIsLoading(false));
-      dispatch(setIsSystemSpeaking(true));
-      await playAudio(audio);
-      dispatch(setIsSystemSpeaking(false));
-    } catch (error) {
-      console.error("Error playing audio:", error);
+      //! system Intro complete
+
+      //! First Question ...
+      setIsLoading(true);
+      const initialQuestion = await getQuestionFromLLM(promptQuestion);
+      dispatch(setNextQuestion(initialQuestion));
+      dispatch(setQuestionCount());
+      setIsLoading(false);
     }
-
-    //! system Intro complete
-
-    //! First Question ...
-    dispatch(setIsLoading(true));
-    const initialQuestion = await getQuestionFromLLM(promptQuestion);
-    dispatch(setNextQuestion(initialQuestion));
-    dispatch(setQuestionCount());
-    dispatch(setIsLoading(false));
   };
 
   const handleFlow = async (question) => {
-    dispatch(setIsLoading(true));
+    setIsLoading(true);
     dispatch(setPromptQuestionData({ role: "system", content: question }));
     dispatch(setScorePrompt(JSON.stringify({ question: question })));
     obj.push({ role: "system", content: question });
@@ -85,26 +79,26 @@ export default function Interaction() {
       const audioBlob = new Blob([voice.data], { type: "audio/mpeg" });
       const audioUrl = URL.createObjectURL(audioBlob);
       const audio = new Audio(audioUrl);
-      dispatch(setIsLoading(false));
-      dispatch(setIsSystemSpeaking(true));
+      setIsLoading(false);
+      setIsSystemSpeaking(true);
       await playAudio(audio);
-      dispatch(setIsSystemSpeaking(false));
+      setIsSystemSpeaking(false);
     } catch (error) {
       console.error("Error playing audio:", error);
     }
 
-    dispatch(setShowSpinerTimer(true));
+    setShowSpinerTimer(true);
     const userAnswer = await listen();
-    dispatch(setShowSpinerTimer(false));
+    setShowSpinerTimer(false);
     if (userAnswer) {
       dispatch(setPromptQuestionData({ role: "user", content: userAnswer }));
       dispatch(setScorePrompt(JSON.stringify({ answer: userAnswer })));
 
       obj.push({ role: "user", content: userAnswer });
-      dispatch(setIsLoading(true));
+      setIsLoading(true);
       const nextQues = await getQuestionFromLLM(obj);
       dispatch(setNextQuestion(nextQues));
-      dispatch(setIsLoading(false));
+      setIsLoading(false);
       dispatch(setQuestionCount());
     } else {
       console.log("No user response detected.");
@@ -117,12 +111,12 @@ export default function Interaction() {
   };
 
   const handleReview = async () => {
-    dispatch(setIsLoading(true));
+    setIsLoading(true);
     setShowReviewButton(false);
     const scoreResult = await getScore(scorePrompt);
     const r = await extractContentFormatted(scoreResult);
     setShowResult(r);
-    dispatch(setIsLoading(false));
+    setIsLoading(false);
     await stopRecording();
   };
 

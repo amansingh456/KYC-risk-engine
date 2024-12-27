@@ -20,6 +20,12 @@ export const startRecording = async () => {
   } catch (error) {
     console.log("Error accessing media devices:", error);
     alert("Please allow camera and microphone permissions.");
+    const retry = confirm("Would you like to retry granting permissions?");
+    if (retry) {
+      return startRecording();
+    } else {
+      throw new Error("Camera and microphone permissions not granted.");
+    }
   }
 };
 

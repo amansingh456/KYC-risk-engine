@@ -84,25 +84,71 @@ export const playAudio = (audio) => {
   });
 };
 
+// export const listen = () => {
+//   return new Promise((resolve) => {
+//     const recognition = new (window.SpeechRecognition ||
+//       window.webkitSpeechRecognition)();
+//     recognition.lang = "hi-IN";
+
+//     let transcript = "";
+//     let isStoppedByTimer = false;
+
+//     const startRecognition = () => {
+//       recognition.start();
+//     };
+
+//     recognition.onresult = (event) => {
+//       transcript += event.results[0][0].transcript;
+//     };
+
+//     recognition.onerror = (event) => {
+//       console.log("Recognition error:", event.error);
+//       if (event.error !== "no-speech") {
+//         resolve("Sorry, I couldn't understand that.");
+//       }
+//     };
+
+//     recognition.onend = () => {
+//       if (!isStoppedByTimer) {
+//         startRecognition(); // Restart recognition if the timer has not stopped it
+//       }
+//     };
+
+//     // Start recognition for the first time
+//     startRecognition();
+
+//     // Stop recognition after 10 seconds
+//     setTimeout(() => {
+//       isStoppedByTimer = true;
+//       recognition.stop();
+//       resolve(transcript || "Sorry, I couldn't understand that.");
+//     }, 10000);
+//   });
+// };
+
 export const listen = () => {
-  return new Promise((resolve) => {
-    const recognition = new (window.SpeechRecognition ||
-      window.webkitSpeechRecognition)();
+  return new Promise((resolve, reject) => {
+    if (
+      !("SpeechRecognition" in window || "webkitSpeechRecognition" in window)
+    ) {
+      reject("Speech Recognition API is not supported in this browser.");
+      return;
+    }
+
+    const SpeechRecognition =
+      window.SpeechRecognition || window.webkitSpeechRecognition;
+    const recognition = new SpeechRecognition();
     recognition.lang = "hi-IN";
 
     let transcript = "";
     let isStoppedByTimer = false;
-
-    const startRecognition = () => {
-      recognition.start();
-    };
 
     recognition.onresult = (event) => {
       transcript += event.results[0][0].transcript;
     };
 
     recognition.onerror = (event) => {
-      console.log("Recognition error:", event.error);
+      console.error("Recognition error:", event.error);
       if (event.error !== "no-speech") {
         resolve("Sorry, I couldn't understand that.");
       }
@@ -110,18 +156,32 @@ export const listen = () => {
 
     recognition.onend = () => {
       if (!isStoppedByTimer) {
-        startRecognition(); // Restart recognition if the timer has not stopped it
+        recognition.start(); // Restart recognition if the timer has not stopped it
       }
     };
 
-    // Start recognition for the first time
-    startRecognition();
+    recognition.onaudiostart = () => {
+      console.log("Audio capturing started.");
+    };
+
+    recognition.onaudioend = () => {
+      console.log("Audio capturing ended.");
+    };
+
+    // Start recognition
+    try {
+      recognition.start();
+    } catch (err) {
+      console.error("Error starting recognition:", err);
+      reject("Failed to start speech recognition.");
+      return;
+    }
 
     // Stop recognition after 10 seconds
     setTimeout(() => {
       isStoppedByTimer = true;
       recognition.stop();
-      resolve(transcript || "Sorry, I couldn't understand that.");
+      resolve(transcript.trim() || "Sorry, I couldn't understand that.");
     }, 10000);
   });
 };

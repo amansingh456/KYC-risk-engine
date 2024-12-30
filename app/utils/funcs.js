@@ -11,16 +11,6 @@ export const speak = (text, lang = "hi-IN") => {
     const speech = new SpeechSynthesisUtterance(text);
     speech.lang = lang;
 
-    // const voices = window.speechSynthesis.getVoices();
-
-    // const selectedVoice = voices.find((voice) => voice.lang === lang);
-
-    // if (selectedVoice) {
-    //   speech.voice = selectedVoice;
-    // } else {
-    //   speech.voice = voices[0];
-    // }
-
     speech.pitch = 0.8; // Adjust pitch for a more natural tone
     speech.rate = 1; // Adjust rate for clarity
     speech.volume = 1; // Adjust volume if needed

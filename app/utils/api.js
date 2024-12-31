@@ -6,7 +6,7 @@ const createSpeech = async (text) => {
       method: "post",
       url: "https://api.openai.com/v1/audio/speech",
       headers: {
-        Authorization: `Bearer ${process.env.NEXT_PUBLIC_ENV_OPENAI_API_KEY}`,
+        Authorization: `Bearer ${process.env.NEXT_PUBLIC_ENV_OPENAI_API}`,
         "Content-Type": "application/json",
       },
       data: {
@@ -75,7 +75,7 @@ const sendChatCompletion = async (promptMsg) => {
       {
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${process.env.NEXT_PUBLIC_ENV_OPENAI_API_KEY}`,
+          Authorization: `Bearer ${process.env.NEXT_PUBLIC_ENV_OPENAI_API}`,
         },
       }
     );
@@ -117,7 +117,7 @@ const getScore = async (promptMsg) => {
       {
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${process.env.NEXT_PUBLIC_ENV_OPENAI_API_KEY}`,
+          Authorization: `Bearer ${process.env.NEXT_PUBLIC_ENV_OPENAI_API}`,
         },
       }
     );

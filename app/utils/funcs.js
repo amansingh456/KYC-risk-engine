@@ -1,5 +1,3 @@
-import lamejs from "lamejs";
-
 export const speak = (text, lang = "hi-IN") => {
   return new Promise((resolve) => {
     if (!window.speechSynthesis) {
@@ -11,9 +9,9 @@ export const speak = (text, lang = "hi-IN") => {
     const speech = new SpeechSynthesisUtterance(text);
     speech.lang = lang;
 
-    speech.pitch = 0.8; // Adjust pitch for a more natural tone
-    speech.rate = 1; // Adjust rate for clarity
-    speech.volume = 1; // Adjust volume if needed
+    speech.pitch = 0.8;
+    speech.rate = 1;
+    speech.volume = 1;
 
     speech.onend = resolve;
     speech.onerror = (error) => {
@@ -121,6 +119,7 @@ export const listen = () => {
     if (
       !("SpeechRecognition" in window || "webkitSpeechRecognition" in window)
     ) {
+      alert("Your browser does not support Speech Recognition.");
       reject("Speech Recognition API is not supported in this browser.");
       return;
     }
@@ -138,7 +137,7 @@ export const listen = () => {
     };
 
     recognition.onerror = (event) => {
-      console.error("Recognition error:", event.error);
+      console.log("Recognition error:", event.error);
       if (event.error !== "no-speech") {
         resolve("Sorry, I couldn't understand that.");
       }
@@ -162,7 +161,7 @@ export const listen = () => {
     try {
       recognition.start();
     } catch (err) {
-      console.error("Error starting recognition:", err);
+      console.log("Error starting recognition:", err);
       reject("Failed to start speech recognition.");
       return;
     }
@@ -172,6 +171,6 @@ export const listen = () => {
       isStoppedByTimer = true;
       recognition.stop();
       resolve(transcript.trim() || "Sorry, I couldn't understand that.");
-    }, 10000);
+    }, 15000);
   });
 };

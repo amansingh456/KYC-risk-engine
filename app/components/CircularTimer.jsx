@@ -1,20 +1,22 @@
 import React, { useState, useEffect } from "react";
 
 const CircularTimer = () => {
-  const [seconds, setSeconds] = useState(10);
+  const [seconds, setSeconds] = useState(15);
   const [percentage, setPercentage] = useState(100);
 
   useEffect(() => {
+    const intervalDuration = 1000;
     if (seconds > 0) {
       const timer = setInterval(() => {
         setSeconds((prev) => prev - 1);
-        setPercentage((prev) => prev - 10);
-      }, 1000);
+        setPercentage((prev) => prev - 100 / 15);
+      }, intervalDuration);
       return () => clearInterval(timer);
-    } else {
-      setPercentage(0);
     }
   }, [seconds]);
+
+  const circumference = 2 * Math.PI * 45; // Circumference of the circle (2πr = 2 * π * 45)
+  const strokeDashoffset = circumference - (circumference * percentage) / 100;
 
   return (
     <div>
@@ -34,8 +36,8 @@ const CircularTimer = () => {
           stroke="#ffffff"
           strokeWidth="10"
           fill="none"
-          strokeDasharray="282.6" /* Circumference of the circle (2 * Math.PI * r) */
-          strokeDashoffset={282.6 - (282.6 * percentage) / 100}
+          strokeDasharray={circumference}
+          strokeDashoffset={strokeDashoffset}
           strokeLinecap="round"
           className="transition-stroke-dashoffset duration-1000 ease-linear"
         />

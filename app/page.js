@@ -2,10 +2,11 @@
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { FaRobot } from "react-icons/fa";
+import { useEffect } from "react";
 
 export default function Home() {
   const router = useRouter();
-
+  useEffect(() => {}, [router]);
   return (
     <div className="flex h-screen bg-black items-center justify-center relative">
       {/* Gradient background */}

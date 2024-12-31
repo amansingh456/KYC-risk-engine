@@ -1,10 +1,10 @@
-export const AnswerBox = () => (
+export const AnswerBox = ({ text }) => (
   <>
     <textarea
-      className="w-full h-32 bg-gray-700 p-4 rounded-md text-sm focus:outline-none border border-gray-600"
-      placeholder="speak..."
+      className="w-full h-12 bg-gray-700 p-4 rounded-md text-sm flex items-center justify-center focus:outline-none border border-gray-600"
       readOnly
-    ></textarea>
+      value={text}
+    />
 
     <style jsx>{`
       textarea::placeholder {

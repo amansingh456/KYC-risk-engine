@@ -4,7 +4,7 @@ export const Instructions = () => (
     <ul className="space-y-1 text-sm list-disc list-inside">
       <li>Look straight.</li>
       <li>Open your eyes fully.</li>
-      <li>Don’t look here or there.</li>
+      <li>Please speak loud & clear .</li>
     </ul>
   </div>
 );

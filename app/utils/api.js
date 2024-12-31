@@ -24,6 +24,45 @@ const createSpeech = async (text) => {
   }
 };
 
+// const createSpeech = async (text) => {
+//   try {
+//     let data = JSON.stringify({
+//       voiceId: "hi-IN-ayushi",
+//       style: "Conversational",
+//       text: text,
+//       rate: 0,
+//       pitch: 0,
+//       sampleRate: 48000,
+//       format: "MP3",
+//       channelType: "MONO",
+//       pronunciationDictionary: {},
+//       encodeAsBase64: false,
+//       variation: 1,
+//       audioDuration: 0,
+//       modelVersion: "GEN2",
+//       multiNativeLocale: "hi-IN",
+//     });
+
+//     let config = {
+//       method: "post",
+//       url: "https://api.murf.ai/v1/speech/generate",
+//       headers: {
+//         "Content-Type": "application/json",
+//         Accept: "application/json",
+//         "api-key": `${process.env.NEXT_PUBLIC_ENV_TSS_KEY}`,
+//       },
+//       data: data,
+//     };
+
+//     const response = await axios(config);
+
+//     return response.data;
+//   } catch (error) {
+//     console.log("Error:", error.response ? error.response.data : error.message);
+//     return error;
+//   }
+// };
+
 const sendChatCompletion = async (promptMsg) => {
   try {
     const response = await axios.post(

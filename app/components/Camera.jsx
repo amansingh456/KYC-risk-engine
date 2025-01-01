@@ -20,6 +20,7 @@ export default function WebcamCapture({ webcamRef }) {
           display: isCameraReady ? "block" : "none",
           border: "1px solid white",
           borderRadius: "6px",
+          height: "270px",
         }}
       />
     </div>

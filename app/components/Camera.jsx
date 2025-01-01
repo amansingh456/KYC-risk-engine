@@ -21,7 +21,7 @@ export default function WebcamCapture({ webcamRef }) {
           border: "1px solid white",
           borderRadius: "6px",
           height: "300px",
-          width: full,
+          width: "100%",
         }}
       />
     </div>

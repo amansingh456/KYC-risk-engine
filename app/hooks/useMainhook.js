@@ -7,6 +7,7 @@ import {
   setNextQuestion,
   setPromptQuestionData,
   setScorePrompt,
+  setStoreResult,
 } from "../store/counterSlice";
 import { createSpeech, extractContentFormatted, getScore } from "../utils/api";
 
@@ -21,19 +22,14 @@ export const useMainhook = () => {
   const [showReviewButton, setShowReviewButton] = useState(false);
   const [showThankYouMsg, setShowThankYouMsg] = useState(false);
   const [showCamera, SetShowCamera] = useState(true);
-  const { promptQuestion, scorePrompt } = useSelector(
+  const [shouldSaveData, setShouldSaveData] = useState(false);
+  const { promptQuestion, scorePrompt, storeResult } = useSelector(
     (state) => state.counterSlice
   );
   const [showScoreInScreen, setShowScoreInScreen] = useState("");
-  const [storeResult, setStoreResult] = useState([]);
-  const addToStoreResult = (value) => {
-    setStoreResult((prevStoreResult) => [...prevStoreResult, value]);
-  };
   const dispatch = useDispatch();
   const obj = [...promptQuestion];
   const regex = /\b(thank\s?you|thankyou)\b[\W]*$/i;
-
-  useEffect(() => {}, [storeResult]);
 
   const handleStart = async () => {
     const isOK = await startRecording();
@@ -102,7 +98,8 @@ export const useMainhook = () => {
     setIsLoading(true);
     dispatch(setPromptQuestionData({ role: "system", content: question }));
     dispatch(setScorePrompt(JSON.stringify({ question: question })));
-    addToStoreResult({ ques: question });
+
+    dispatch(setStoreResult({ ques: question }));
     obj.push({ role: "system", content: question });
 
     let voice;
@@ -164,8 +161,8 @@ export const useMainhook = () => {
       dispatch(setPromptQuestionData({ role: "user", content: userAnswer }));
       dispatch(setScorePrompt(JSON.stringify({ answer: userAnswer })));
       obj.push({ role: "user", content: userAnswer });
-      addToStoreResult({ ans: userAnswer });
 
+      dispatch(setStoreResult({ ans: userAnswer }));
       const nextQues = await getQuestionFromLLM(obj);
       dispatch(setNextQuestion(nextQues));
       setQuestionCount((prev) => prev + 1);
@@ -183,36 +180,23 @@ export const useMainhook = () => {
   };
 
   const handleReview = async () => {
-    setIsLoading(true);
-    setShowReviewButton(false);
-    const scoreResult = await getScore(scorePrompt);
-
-    const r = await extractContentFormatted(scoreResult);
-    setShowScoreInScreen(r);
-    setIsLoading(false);
-    addToStoreResult({ confidenceScore: r });
     try {
-      console.log("storeResult", storeResult);
-      const response = await fetch("/api/postResult", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(storeResult),
-      });
+      setIsLoading(true);
+      setShowReviewButton(false);
+      const scoreResult = await getScore(scorePrompt);
 
-      if (response.ok) {
-        const data = await response.json();
-        console.log("Data successfully saved to MongoDB:", data);
-      } else {
-        const errorData = await response.json();
-        console.error("Failed to save data:", errorData);
-      }
+      const r = await extractContentFormatted(scoreResult);
+      setShowScoreInScreen(r);
+      setIsLoading(false);
+      dispatch(setStoreResult({ confidenceScore: r }));
+      setShouldSaveData(true);
     } catch (error) {
       setErrorx("Something went wrong while posting data to the DB");
       console.error("Error posting data to the API:", error);
     } finally {
       SetShowCamera(false);
       setShowThankYouMsg(true);
-      setAnsBoxValue("");
+      setShowAnsBox(false);
       setIsLoading(false);
       setIsSystemSpeaking(false);
       setQuestionCount(0);
@@ -220,6 +204,45 @@ export const useMainhook = () => {
       await stopRecording();
     }
   };
+
+  useEffect(() => {
+    const controller = new AbortController();
+    const signal = controller.signal;
+
+    const saveData = async () => {
+      if (shouldSaveData) {
+        try {
+          console.log(storeResult, "storeResult");
+          const response = await fetch("/api/postResult", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(storeResult),
+            signal,
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            console.log("Data successfully saved to MongoDB:", data);
+          } else {
+            const errorData = await response.json();
+            console.error("Failed to save data:", errorData);
+          }
+        } catch (error) {
+          if (error.name === "AbortError") {
+            console.log("Fetch request was aborted.");
+          } else {
+            console.error("Error saving data:", error.message);
+          }
+        }
+      }
+    };
+
+    saveData();
+
+    return () => {
+      controller.abort();
+    };
+  }, [shouldSaveData]);
 
   return {
     handleStart,

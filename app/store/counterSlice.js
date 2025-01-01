@@ -3,6 +3,7 @@ const { createSlice } = require("@reduxjs/toolkit");
 
 const initialState = {
   nextQuestion: "",
+  storeResult: [],
   promptQuestion: [
     {
       role: "system",
@@ -37,6 +38,9 @@ const counterSlice = createSlice({
     setPromptQuestionData: (state, action) => {
       state.promptQuestion = [...state.promptQuestion, action.payload];
     },
+    setStoreResult: (state, action) => {
+      state.storeResult = [...state.storeResult, action.payload];
+    },
     setScorePrompt: (state, action) => {
       const reviewPromptContent = state.scorePrompt[0]?.content[0]?.text || "";
       const newString = action.payload;
@@ -49,7 +53,11 @@ const counterSlice = createSlice({
   },
 });
 
-export const { setPromptQuestionData, setNextQuestion, setScorePrompt } =
-  counterSlice.actions;
+export const {
+  setPromptQuestionData,
+  setNextQuestion,
+  setScorePrompt,
+  setStoreResult,
+} = counterSlice.actions;
 
 export default counterSlice.reducer;

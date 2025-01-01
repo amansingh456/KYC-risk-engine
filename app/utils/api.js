@@ -105,7 +105,6 @@ const extractContentFormatted = async (apiResponse) => {
 };
 
 const getScore = async (promptMsg) => {
-  console.log(promptMsg);
   try {
     const response = await axios.post(
       "https://api.openai.com/v1/chat/completions",
@@ -128,4 +127,34 @@ const getScore = async (promptMsg) => {
   }
 };
 
-export { sendChatCompletion, extractContentFormatted, createSpeech, getScore };
+const createText = async (audioFilePath) => {
+  try {
+    const formData = new FormData();
+    formData.append("file", audioFilePath, "audio.mp3");
+    formData.append("model", "whisper-1");
+    formData.append("language", "hi");
+
+    const response = await axios({
+      method: "post",
+      url: "https://api.openai.com/v1/audio/transcriptions",
+      headers: {
+        Authorization: `Bearer ${process.env.NEXT_PUBLIC_ENV_OPENAI_API}`,
+        "Content-Type": "multipart/form-data",
+      },
+      data: formData,
+    });
+
+    return response.data.text;
+  } catch (error) {
+    console.log("Error:", error.response ? error.response.data : error.message);
+    return error;
+  }
+};
+
+export {
+  sendChatCompletion,
+  extractContentFormatted,
+  createSpeech,
+  getScore,
+  createText,
+};

@@ -38,9 +38,9 @@ const Interaction = () => {
   }, [questionCount]);
 
   return (
-    <div className="relative w-[375px] h-[667px] border bg-gray-800 rounded-lg shadow-lg flex flex-col items-center border-white-700">
+    <div className="relative w-[375px] h-[600px] border bg-gray-800 rounded-lg shadow-lg flex flex-col items-center border-white-700">
       <div className="flex flex-col justify-between space-y-6 w-full h-full p-2">
-        <div>{showCamera && <WebcamCapture />}</div>
+        <div className="">{showCamera && <WebcamCapture />}</div>
         {!isProcessStart && <Instructions />}
 
         {!isProcessStart && (

@@ -27,3 +27,4 @@ export default function WebcamCapture({ webcamRef }) {
     </div>
   );
 }
+//aman

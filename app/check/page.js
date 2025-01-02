@@ -1,7 +1,6 @@
 "use client";
 import React, { useEffect, useRef, useState } from "react";
 
-// import WebcamCapture from "../components/Camera";
 import { useMainhook } from "../hooks/useMainhook";
 import { LoadingAnimation } from "../components/Loading";
 import { SpeakingAnimation } from "../components/Speaking";
@@ -18,6 +17,7 @@ const WebcamCapture = dynamic(() => import("../components/Camera"), {
 const Interaction = () => {
   const webcamRef = useRef(null);
   const [isFaceDetected, setIsFaceDetected] = useState(true);
+
   const {
     handleStart,
     isLoading,
@@ -46,9 +46,6 @@ const Interaction = () => {
     }
   }, [questionCount]);
 
-  if (countErr > 120) {
-    window.location.reload();
-  }
   console.log(countErr, "countErr");
   return (
     <div className="relative w-[330px] h-[600px] border bg-gray-800 rounded-lg shadow-lg flex flex-col items-center border-white-700">

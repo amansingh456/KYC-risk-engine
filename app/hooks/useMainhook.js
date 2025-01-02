@@ -227,6 +227,7 @@ export const useMainhook = () => {
 
           if (response.ok) {
             const data = await response.json();
+            window.location.reload();
             console.log("Data successfully saved to MongoDB:", data);
           } else {
             const errorData = await response.json();
@@ -249,6 +250,13 @@ export const useMainhook = () => {
     };
   }, [shouldSaveData]);
 
+  useEffect(() => {
+    if (countErr > 100) {
+      dispatch(setStoreResult({ reason: "Not showing face" }));
+      setShouldSaveData(true);
+    }
+  }, [countErr]);
+
   return {
     handleStart,
     isLoading,
@@ -266,5 +274,6 @@ export const useMainhook = () => {
     showCamera,
     countErr,
     setCountErr,
+    setShouldSaveData,
   };
 };

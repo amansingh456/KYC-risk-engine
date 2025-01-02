@@ -34,6 +34,10 @@ export default function Home() {
         >
           Let's Start
         </button>
+        <footer className="text-[12px] text-black italic flex items-right justify-right mt-10">
+          Powered By
+          <span className="font-bold  rounded-md pl-1">DETEX.Tech</span>
+        </footer>
       </motion.div>
     </div>
   );

@@ -45,10 +45,34 @@ const counterSlice = createSlice({
       const reviewPromptContent = state.scorePrompt[0]?.content[0]?.text || "";
       const newString = action.payload;
 
-      // Update the text field with the new string appended
       state.scorePrompt[0].content[0].text = reviewPromptContent
-        ? `${reviewPromptContent} ${newString}` // Append with a space if not empty
-        : newString; // Otherwise, just set the new string
+        ? `${reviewPromptContent} ${newString}`
+        : newString;
+    },
+    setResetReduxState: (state) => {
+      state.nextQuestion = "";
+      state.storeResult = [];
+      state.promptQuestion = [
+        {
+          role: "system",
+          content: "You are a helpful assistant.",
+        },
+        {
+          role: "user",
+          content: promptQuestionPool,
+        },
+      ];
+      state.scorePrompt = [
+        {
+          role: "assistant",
+          content: [
+            {
+              type: "text",
+              text: reviewPrompt,
+            },
+          ],
+        },
+      ];
     },
   },
 });
@@ -58,6 +82,7 @@ export const {
   setNextQuestion,
   setScorePrompt,
   setStoreResult,
+  setResetReduxState,
 } = counterSlice.actions;
 
 export default counterSlice.reducer;

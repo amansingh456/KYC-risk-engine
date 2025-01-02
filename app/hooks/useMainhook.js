@@ -23,6 +23,9 @@ export const useMainhook = () => {
   const [showThankYouMsg, setShowThankYouMsg] = useState(false);
   const [showCamera, SetShowCamera] = useState(true);
   const [shouldSaveData, setShouldSaveData] = useState(false);
+  const [isHandleStartClicked, setIsHandleStartClicked] = useState(false);
+  const [countErr, setCountErr] = useState(0);
+
   const { promptQuestion, scorePrompt, storeResult } = useSelector(
     (state) => state.counterSlice
   );
@@ -32,6 +35,8 @@ export const useMainhook = () => {
   const regex = /\b(thank\s?you|thankyou)\b[\W]*$/i;
 
   const handleStart = async () => {
+    if (isHandleStartClicked) return;
+    setIsHandleStartClicked(true);
     const isOK = await startRecording();
     if (isOK) {
       setIsProcessStart(true);
@@ -52,7 +57,7 @@ export const useMainhook = () => {
         // const audio = new Audio(audioUrl);
 
         setIsLoading(false);
-        setShowAnsBox("नमस्कार, मै DETAX की केवाईसी एजेंट हू");
+        setShowAnsBox("नमस्कार, मै DETEX की केवाईसी एजेंट हू");
         setIsSystemSpeaking(true);
 
         await playAudio(audio);
@@ -117,7 +122,7 @@ export const useMainhook = () => {
       // const audio = new Audio(audioUrl);
 
       setIsLoading(false);
-      setShowAnsBox("कृपया ध्यान से सुने .... !!");
+      setShowAnsBox("Please listen carefully .... !!");
       setIsSystemSpeaking(true);
       await playAudio(audio);
       setShowAnsBox(false);
@@ -138,7 +143,7 @@ export const useMainhook = () => {
       return;
     }
 
-    if (questionCount === 8) {
+    if (questionCount === 20) {
       setShowReviewButton(true);
       setIsLoading(false);
       setShowSpinerTimer(false);
@@ -259,5 +264,7 @@ export const useMainhook = () => {
     showScoreInScreen,
     showThankYouMsg,
     showCamera,
+    countErr,
+    setCountErr,
   };
 };

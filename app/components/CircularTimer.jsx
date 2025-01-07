@@ -9,13 +9,13 @@ const CircularTimer = () => {
     if (seconds > 0) {
       const timer = setInterval(() => {
         setSeconds((prev) => prev - 1);
-        setPercentage((prev) => (prev - 100 / 15).toFixed(2)); // Keep precision
+        setPercentage((prev) => (prev - 100 / 15).toFixed(2));
       }, intervalDuration);
       return () => clearInterval(timer);
     }
   }, [seconds]);
 
-  const circumference = 2 * Math.PI * 35; // Circumference of the circle (2πr = 2 * π * 45)
+  const circumference = 2 * Math.PI * 35;
   const strokeDashoffset = circumference - (circumference * percentage) / 100;
 
   return (

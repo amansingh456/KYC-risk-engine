@@ -251,7 +251,7 @@ export const useMainhook = () => {
   }, [shouldSaveData]);
 
   useEffect(() => {
-    if (countErr > 100) {
+    if (countErr > 150) {
       dispatch(setStoreResult({ reason: "Not showing face" }));
       setShouldSaveData(true);
     }

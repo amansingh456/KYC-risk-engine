@@ -1,10 +1,20 @@
 import { createText, extractContentFormatted, sendChatCompletion } from "./api";
 
 export const playAudio = (audio) => {
-  return new Promise((resolve, reject) => {
-    audio.play();
-    audio.onended = resolve;
-    audio.onerror = reject;
+  return new Promise(async (resolve, reject) => {
+    try {
+      if (
+        typeof AudioContext !== "undefined" ||
+        typeof webkitAudioContext !== "undefined"
+      ) {
+        const audioContext = new (AudioContext || webkitAudioContext)();
+        await audioContext.resume();
+        console.log("Audio context resumed for Safari compatibility.");
+      }
+      audio.play();
+      audio.onended = resolve;
+      audio.onerror = reject;
+    } catch (error) {}
   });
 };
 
@@ -21,10 +31,24 @@ export const listen = async () => {
 
   return new Promise(async (resolve, reject) => {
     try {
+      if (
+        typeof AudioContext !== "undefined" ||
+        typeof webkitAudioContext !== "undefined"
+      ) {
+        const audioContext = new (AudioContext || webkitAudioContext)();
+        await audioContext.resume();
+        console.log("Audio context initialized for Safari compatibility.");
+      }
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const mediaRecorder = new MediaRecorder(stream, {
-        mimeType: "audio/webm",
-      });
+
+      const mimeType = MediaRecorder.isTypeSupported("audio/webm")
+        ? "audio/webm"
+        : "audio/mp4";
+      const mediaRecorder = new MediaRecorder(stream, { mimeType });
+
+      // const mediaRecorder = new MediaRecorder(stream, {
+      //   mimeType: "audio/webm",
+      // });
       const audioChunks = [];
 
       mediaRecorder.ondataavailable = (event) => {
@@ -43,6 +67,7 @@ export const listen = async () => {
 
         // Step 2: Send audio to Whisper API for transcription
         const transcription = await createText(audioFile);
+
         resolve(transcription || "Sorry, I couldn't understand that.");
       };
 

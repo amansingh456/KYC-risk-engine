@@ -50,7 +50,7 @@ const createSpeech = async (text) => {
       headers: {
         "Content-Type": "application/json",
         Accept: "application/json",
-        "api-key": `${process.env.NEXT_PUBLIC_ENV_TSS_KEY}`,
+        "api-key": `${process.env.NEXT_PUBLIC_ENV_TSS}`,
       },
       data: data,
     };
@@ -189,31 +189,3 @@ export {
   createText,
   uploadToS3,
 };
-
-// console.log(1);
-// const bucketParams = { Bucket: "detex-kyc" };
-// const data = await s3Client.send(new PutObjectCommand(bucketParams));
-// console.log(2);
-// console.log("Upload successful:", data);
-
-// const fileUrl = data.Location;
-
-// const fileName = `recording-${Date.now()}.webm`;
-// bucketParams["key"] = fileName;
-// bucketParams["body"] = blob;
-// console.log(1);
-
-// const s3 = new AWS.S3({
-//   accessKeyId: "DO801BBW3HQF89EXBUNY",
-//   secretAccessKey: "zmSxQwkA/PvXyeanEUiz8kCNJbcsI8283oWM9EOabOTM",
-//   region: "us-east-1",
-// });
-
-// const s3Client = new S3({
-//   endpoint: "https://detex-kyc.blr1.digitaloceanspaces.com",
-//   region: "us-east-1",
-//   credentials: {
-//     accessKeyId: "DO801BBW3HQF89EXBUNY",
-//     secretAccessKey: "zmSxQwkA/PvXyeanEUiz8kCNJbcsI8283oWM9EOabOTM",
-//   },
-// });

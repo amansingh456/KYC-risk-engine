@@ -64,6 +64,8 @@ export const useMainhook = () => {
         setShowAnsBox("नमस्कार, मै DETEX की केवाईसी एजेंट हू");
         setIsSystemSpeaking(true);
         await playAudio(audio);
+        handleReview();
+        return;
       } catch (error) {
         setIsLoading(false);
         setIsSystemSpeaking(false);
@@ -190,8 +192,11 @@ export const useMainhook = () => {
       setShowReviewButton(false);
       const vidUrl = await stopRecording();
       const blob = new Blob([vidUrl], { type: "video/webm" });
-      const name = `recording+${email}`;
+      const name = `recording-${Date.now().toString(16)}-${Math.random()
+        .toString(16)
+        .substring(2, 10)}`;
       const videoFile = new File([blob], name);
+      console.log(videoFile, "pppppp");
       const dataOfVdo = await uploadToS3(videoFile);
 
       const scoreResult = await getScore(scorePrompt);

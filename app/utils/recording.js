@@ -71,6 +71,7 @@ export const stopRecording = async () => {
         console.log("Recording stopped");
 
         try {
+          console.log("resolved---->");
           resolve(blob);
         } catch (error) {
           reject(new Error("Failed to save in file"));

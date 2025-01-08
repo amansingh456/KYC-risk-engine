@@ -33,8 +33,8 @@ export const useMainhook = () => {
   const [countErr, setCountErr] = useState(0);
   const searchParams = useSearchParams();
 
-  const email = searchParams.get("email");
-  const token = searchParams.get("token");
+  const email = searchParams?.get("email");
+  const token = searchParams?.get("token");
 
   const { promptQuestion, scorePrompt, storeResult } = useSelector(
     (state) => state.counterSlice

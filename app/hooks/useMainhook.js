@@ -52,13 +52,13 @@ export const useMainhook = () => {
           "नमस्कार, मै डिटेक्स की केवाईसी एजेंट हू"
         );
 
-        // const audioBlob = new Blob([voice.data], { type: "audio/mpeg" });
-        // const audioUrl = URL.createObjectURL(audioBlob);
-        // const audio = new Audio(audioUrl);
+        const audioBlob = new Blob([voice.data], { type: "audio/mpeg" });
+        const audioUrl = URL.createObjectURL(audioBlob);
+        const audio = new Audio(audioUrl);
 
         //! use myra.ai for girl best audio....
-        const audioUrl = voice.audioFile;
-        const audio = new Audio(audioUrl);
+        // const audioUrl = voice.audioFile;
+        // const audio = new Audio(audioUrl);
 
         setIsLoading(false);
         setShowAnsBox("नमस्कार, मै DETEX की केवाईसी एजेंट हू");
@@ -114,12 +114,12 @@ export const useMainhook = () => {
     try {
       voice = await createSpeech(question);
 
-      // const audioBlob = new Blob([voice.data], { type: "audio/mpeg" });
-      // const audioUrl = URL.createObjectURL(audioBlob);
-      // const audio = new Audio(audioUrl);
-      //! use myra.ai for girl best audio....
-      const audioUrl = voice.audioFile;
+      const audioBlob = new Blob([voice.data], { type: "audio/mpeg" });
+      const audioUrl = URL.createObjectURL(audioBlob);
       const audio = new Audio(audioUrl);
+      // //! use myra.ai for girl best audio....
+      // const audioUrl = voice.audioFile;
+      // const audio = new Audio(audioUrl);
 
       setIsLoading(false);
       setShowAnsBox("Please listen carefully .... !!");

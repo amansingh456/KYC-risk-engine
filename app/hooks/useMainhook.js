@@ -15,6 +15,7 @@ import {
   getScore,
   uploadToS3,
 } from "../utils/api";
+import { useSearchParams } from "next/navigation";
 
 export const useMainhook = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -30,8 +31,14 @@ export const useMainhook = () => {
   const [shouldSaveData, setShouldSaveData] = useState(false);
   const [isHandleStartClicked, setIsHandleStartClicked] = useState(false);
   const [countErr, setCountErr] = useState(0);
-  const { promptQuestion, scorePrompt, storeResult, email, token } =
-    useSelector((state) => state.counterSlice);
+  const searchParams = useSearchParams();
+
+  const email = searchParams.get("email");
+  const token = searchParams.get("token");
+
+  const { promptQuestion, scorePrompt, storeResult } = useSelector(
+    (state) => state.counterSlice
+  );
   const dispatch = useDispatch();
   const obj = [...promptQuestion];
   const regex = /\b(thank\s?you|thankyou)\b[\W]*$/i;
@@ -177,7 +184,6 @@ You are a female quizmaster conducting a video KYC process to validate the user�
         setIsLoading(false);
         setShowAnsBox("नमस्कार, मै DETEX की केवाईसी एजेंट हू");
         setIsSystemSpeaking(true);
-
         await playAudio(audio);
       } catch (error) {
         setIsLoading(false);
@@ -316,8 +322,8 @@ You are a female quizmaster conducting a video KYC process to validate the user�
       dispatch(setStoreResult({ confidenceScore: r }));
       dispatch(setStoreResult({ videoLink: dataOfVdo?.fileUrl }));
       console.log(email, token, "pppp");
-      dispatch(setStoreResult({ email: email }));
-      dispatch(setStoreResult({ token: token }));
+      // dispatch(setStoreResult({ email: email }));
+      // dispatch(setStoreResult({ token: token }));
 
       setShouldSaveData(true);
     } catch (error) {

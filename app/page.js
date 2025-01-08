@@ -1,18 +1,11 @@
 "use client";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { useDispatch } from "react-redux";
-import { setUserEmail, setUserToken } from "./store/counterSlice";
+
 import { Suspense } from "react";
 
 export default function Home() {
   const router = useRouter();
-  const dispatch = useDispatch();
-  const searchParams = useSearchParams();
-  const email = searchParams.get("email");
-  const token = searchParams.get("token");
-  dispatch(setUserEmail(email));
-  dispatch(setUserToken(token));
 
   return (
     <Suspense fallback={<div>Loading...</div>}>

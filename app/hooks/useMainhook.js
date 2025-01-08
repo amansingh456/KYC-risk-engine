@@ -64,8 +64,6 @@ export const useMainhook = () => {
         setShowAnsBox("नमस्कार, मै DETEX की केवाईसी एजेंट हू");
         setIsSystemSpeaking(true);
         await playAudio(audio);
-        handleReview();
-        return;
       } catch (error) {
         setIsLoading(false);
         setIsSystemSpeaking(false);

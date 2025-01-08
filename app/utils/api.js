@@ -1,4 +1,5 @@
 import axios from "axios";
+import { S3, PutObjectCommand } from "@aws-sdk/client-s3";
 
 const createSpeech = async (text) => {
   try {
@@ -55,7 +56,6 @@ const createSpeech = async (text) => {
 //     };
 
 //     const response = await axios(config);
-
 //     return response.data;
 //   } catch (error) {
 //     console.log("Error:", error.response ? error.response.data : error.message);
@@ -151,10 +151,69 @@ const createText = async (audioFilePath) => {
   }
 };
 
+const uploadToS3 = async (blob) => {
+  const s3Client = new S3({
+    endpoint: "https://fra1.digitaloceanspaces.com",
+    region: "us-east-1",
+    credentials: {
+      accessKeyId: "DO00Y6E98L82H7GRXJK7",
+      secretAccessKey: "HYsQivlnYjpGrNSofVHlPmo0f75Y31Hs3wHZA6ZLwlk",
+    },
+  });
+
+  try {
+    const fileName = `detex-data/recording-${Date.now()}.webm`;
+
+    const bucketParams = {
+      Bucket: "stg-kyc-docs",
+      Key: fileName,
+      Body: blob,
+      ContentType: "video/webm",
+      ACL: "public-read",
+    };
+
+    const response = await s3Client.send(new PutObjectCommand(bucketParams));
+    const fileUrl = `https://detex-kyc.blr1.digitaloceanspaces.com/${fileName}`;
+    return { success: true, fileUrl };
+  } catch (error) {
+    console.error("Upload failed:", error);
+    return { success: false, error };
+  }
+};
+
 export {
   sendChatCompletion,
   extractContentFormatted,
   createSpeech,
   getScore,
   createText,
+  uploadToS3,
 };
+
+// console.log(1);
+// const bucketParams = { Bucket: "detex-kyc" };
+// const data = await s3Client.send(new PutObjectCommand(bucketParams));
+// console.log(2);
+// console.log("Upload successful:", data);
+
+// const fileUrl = data.Location;
+
+// const fileName = `recording-${Date.now()}.webm`;
+// bucketParams["key"] = fileName;
+// bucketParams["body"] = blob;
+// console.log(1);
+
+// const s3 = new AWS.S3({
+//   accessKeyId: "DO801BBW3HQF89EXBUNY",
+//   secretAccessKey: "zmSxQwkA/PvXyeanEUiz8kCNJbcsI8283oWM9EOabOTM",
+//   region: "us-east-1",
+// });
+
+// const s3Client = new S3({
+//   endpoint: "https://detex-kyc.blr1.digitaloceanspaces.com",
+//   region: "us-east-1",
+//   credentials: {
+//     accessKeyId: "DO801BBW3HQF89EXBUNY",
+//     secretAccessKey: "zmSxQwkA/PvXyeanEUiz8kCNJbcsI8283oWM9EOabOTM",
+//   },
+// });

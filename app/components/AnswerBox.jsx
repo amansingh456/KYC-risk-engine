@@ -1,16 +1,23 @@
 export const AnswerBox = ({ text }) => (
   <>
     <textarea
-      className="w-full h-12 bg-gray-700 p-4 rounded-md text-sm flex items-center justify-center focus:outline-none border border-gray-600"
+      className="w-full h-12 p-4 rounded-md text-sm text-black text-center focus:outline-none border border-[#DCDCDC]"
       readOnly
       value={text}
+      placeholder="Enter your answer"
     />
 
     <style jsx>{`
+      textarea {
+        text-align: center;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
       textarea::placeholder {
         text-align: center;
         font-size: 1.125rem;
-        color: #a1a1a1;
+        color: black;
       }
     `}</style>
   </>

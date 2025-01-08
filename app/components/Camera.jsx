@@ -72,7 +72,7 @@ export default function WebcamCapture({
       {!isCameraReady && !error && <LoadingAnimation />}
       {error && (
         <div className="absolute inset-0 bg-black bg-opacity-70 flex items-center justify-center z-10">
-          <div className="bg-gray-600 text-center p-4 rounded-md shadow-md ml-2 mr-2">
+          <div className="bg-white text-center p-4 rounded-md shadow-md ml-2 mr-2">
             <p className="text-red-500 font-bold">{error}</p>
           </div>
         </div>
@@ -85,7 +85,7 @@ export default function WebcamCapture({
         style={{
           transform: "scaleX(-1)",
           display: isCameraReady ? "block" : "none",
-          border: "1px solid white",
+          border: "1px solid #DCDCDC",
           borderRadius: "6px",
           height: "300px",
           width: "100%",

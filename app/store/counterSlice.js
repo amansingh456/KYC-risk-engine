@@ -4,6 +4,8 @@ const { createSlice } = require("@reduxjs/toolkit");
 const initialState = {
   nextQuestion: "",
   storeResult: [],
+  email: "",
+  token: "",
   promptQuestion: [
     {
       role: "system",
@@ -33,6 +35,12 @@ const counterSlice = createSlice({
   reducers: {
     setNextQuestion: (state, action) => {
       state.nextQuestion = action.payload;
+    },
+    setUserEmail: (state, action) => {
+      state.email = action.payload;
+    },
+    setUserToken: (state, action) => {
+      state.token = action.payload;
     },
 
     setPromptQuestionData: (state, action) => {
@@ -83,6 +91,8 @@ export const {
   setScorePrompt,
   setStoreResult,
   setResetReduxState,
+  setUserEmail,
+  setUserToken,
 } = counterSlice.actions;
 
 export default counterSlice.reducer;

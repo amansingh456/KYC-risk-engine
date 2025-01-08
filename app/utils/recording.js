@@ -1,5 +1,6 @@
 let mediaRecorder;
 let recordedChunks = [];
+import { path } from "path";
 
 export const startRecording = async () => {
   recordedChunks = [];
@@ -39,13 +40,41 @@ export const startRecording = async () => {
   }
 };
 
+// export const stopRecording = async () => {
+//   return new Promise((resolve, reject) => {
+//     if (mediaRecorder && mediaRecorder.state !== "inactive") {
+//       mediaRecorder.onstop = () => {
+//         const blob = new Blob(recordedChunks, { type: "video/webm" });
+//         console.log("Recording stopped");
+//         resolve(blob);
+//       };
+
+//       mediaRecorder.onerror = (err) => {
+//         console.error("MediaRecorder stop error:", err);
+//         reject(new Error("Failed to stop MediaRecorder."));
+//       };
+
+//       mediaRecorder.stop();
+//     } else {
+//       reject(new Error("MediaRecorder is not active."));
+//     }
+//   });
+// };
+
+// !
+
 export const stopRecording = async () => {
   return new Promise((resolve, reject) => {
     if (mediaRecorder && mediaRecorder.state !== "inactive") {
-      mediaRecorder.onstop = () => {
+      mediaRecorder.onstop = async () => {
         const blob = new Blob(recordedChunks, { type: "video/webm" });
         console.log("Recording stopped");
-        resolve(blob);
+
+        try {
+          resolve(blob);
+        } catch (error) {
+          reject(new Error("Failed to save in file"));
+        }
       };
 
       mediaRecorder.onerror = (err) => {

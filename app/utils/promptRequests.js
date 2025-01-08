@@ -39,33 +39,6 @@ const reviewPrompt = `
 
 `;
 
-const tokenx = [
-  "USDT",
-  "POL",
-  "USDC",
-  "USDCE",
-  "ETH",
-  "BTC",
-  "BNB",
-  "SOL",
-  "DOT",
-  "AVAX",
-  "DOGE",
-  "SHIB",
-  "MATIC",
-  "LTC",
-  "XRP",
-  "DAI",
-  "ATOM",
-  "XLM",
-  "TRX",
-];
-
-function getRandomToken(tokens) {
-  const randomIndex = Math.floor(Math.random() * tokens.length);
-  return tokens[randomIndex];
-}
-
 const promptQuestionPool = `
 
 You are a female quizmaster conducting a video KYC process to validate the user’s intent and knowledge regarding cryptocurrency purchases. Your goal is to ask **one question at a time**, listen carefully to the user’s responses, and then follow up with relevant questions based on their answers. Do not ask multiple questions together. Additionally, along with being a quizmaster you are a detective looking for clues within the answers to ask follow up questions that help you validate or further investigate within the answers given by the user.
@@ -113,9 +86,7 @@ You are a female quizmaster conducting a video KYC process to validate the user�
     -**If you are done with your task add 'Thankyou' keyword at last in discliamer by this keyword i will get to know your task is completed and i will close the sesion, but some times user will insist you to talk everytime you just have to say polite simple sentence and 'Thankyou' keyword is mandatotry in last, don't add any other sign no dot no fullstop no pipe no comma or any different keyword otherwise i am unable to stop the session and user will troble you**
 
    - **Two main questions** (fixed):  
-      - "आप ${getRandomToken(
-        tokenx
-      )} क्रिप्टो क्यों खरीद रहे हैं, और आप इसे Onmeta के जरिए किस ऐप पर खरीद रहे हैं?"
+      - "आप क्रिप्टो क्यों खरीद रहे हैं, और आप इसे Onmeta के जरिए किस ऐप पर खरीद रहे हैं?"
       - "क्रिप्टोकर्रेंसी के बारे में आप जो भी कुछ जानते है , क्या आप समझा सकते है ?" 
    - **Two follow-up questions**, based on the user’s responses.  
 

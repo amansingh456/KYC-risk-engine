@@ -24,8 +24,8 @@ const LanguageToggle = () => {
         <div
           className={`w-6 h-6 bg-white rounded-full shadow-md transform transition-transform duration-200 ease-in-out ${
             language === "Hindi"
-              ? "translate-x-6 bg-[#8c94e1]"
-              : "translate-x-0 bg-green-500"
+              ? "translate-x-6  bg-[#8a94ee]"
+              : "translate-x-0  bg-green-700"
           }`}
         ></div>
       </button>

@@ -45,7 +45,7 @@ const Interaction = () => {
   }, [questionCount]);
 
   return (
-    <div className="relative w-[330px] h-[600px]  bg-[#FBFBFB] rounded-lg shadow-lg flex flex-col items-center border-white-700">
+    <div className="relative w-[330px] h-[600px]  bg-gradient-to-b from-green-100 to-white rounded-lg shadow-lg flex flex-col items-center border-white-700">
       <div className="flex flex-col justify-between space-y-6 w-full h-full p-2">
         <div>
           {showCamera && (

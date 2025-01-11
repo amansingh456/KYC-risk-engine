@@ -12,6 +12,7 @@
     "@aws-sdk/client-s3": "^3.723.0",
     "@reduxjs/toolkit": "^2.5.0",
     "@vladmandic/face-api": "^1.7.14",
+    "aws-sdk": "^2.1692.0",
     "axios": "^1.7.9",
     "dotenv": "^16.4.7",
     "face-api.js": "^0.20.0",

@@ -1,4 +1,5 @@
 import axios from "axios";
+import AWS from "aws-sdk";
 import {
   S3Client,
   S3,
@@ -48,6 +49,7 @@ const createSpeech = async (text) => {
       },
       responseType: "arraybuffer",
     });
+
     return response;
   } catch (error) {
     console.log("Error:", error.response ? error.response.data : error.message);
@@ -218,6 +220,61 @@ const uploadToS3 = async (blob) => {
     return { success: false, error };
   }
 };
+
+// const s3Client = new AWS.S3({
+//   endpoint: "https://fra1.digitaloceanspaces.com",
+//   region: "us-east-1",
+//   accessKeyId: "DO00Y6E98L82H7GRXJK7",
+//   secretAccessKey: "HYsQivlnYjpGrNSofVHlPmo0f75Y31Hs3wHZA6ZLwlk",
+//   accessKeyId: "your-access-key-id",
+// });
+
+// const uploadToS3 = async (file) => {
+//   const params = {
+//     Bucket: "stg-kyc-docs",
+//     Key: "video-files/" + file.name,
+//   };
+
+//   const initiateResponse = await s3Client
+//     .createMultipartUpload(params)
+//     .promise();
+//   const uploadId = initiateResponse.UploadId;
+//   const partSize = 5 * 1024 * 1024;
+
+//   const parts = [];
+//   const numParts = Math.ceil(file.size / partSize);
+
+//   const uploadPart = async (partNumber) => {
+//     const partParams = {
+//       Bucket: "stg-kyc-docs",
+//       Key: "video-files/" + file.name,
+//       PartNumber: partNumber,
+//       UploadId: uploadId,
+//       Body: file.slice((partNumber - 1) * partSize, partNumber * partSize),
+//     };
+
+//     const partUpload = await s3Client.uploadPart(partParams).promise();
+//     parts.push({ PartNumber: partNumber, ETag: partUpload.ETag });
+//   };
+
+//   for (let i = 1; i <= numParts; i++) {
+//     await uploadPart(i);
+//   }
+
+//   const completeParams = {
+//     Bucket: "stg-kyc-docs",
+//     Key: "video-files/" + file.name,
+//     UploadId: uploadId,
+//     MultipartUpload: {
+//       Parts: parts,
+//     },
+//   };
+
+//   const completeResponse = await s3Client
+//     .completeMultipartUpload(completeParams)
+//     .promise();
+//   return completeResponse.Location;
+// };
 
 export {
   sendChatCompletion,

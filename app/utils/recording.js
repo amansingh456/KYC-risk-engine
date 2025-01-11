@@ -36,7 +36,9 @@ export const startRecording = async () => {
     throw new Error("Camera permissions are not granted.");
   }
 };
+//!
 
+//!
 // export const stopRecording = async () => {
 //   return new Promise((resolve, reject) => {
 //     if (mediaRecorder && mediaRecorder.state !== "inactive") {

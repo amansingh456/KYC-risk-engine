@@ -212,7 +212,8 @@ export const useMainhook = () => {
       const vidUrl = await stopRecording();
 
       const blob = new Blob([vidUrl], { type: "video/webm" });
-      const videoFile = new File([blob], { type: "video/webm" });
+      const names = `detex-data/recording-${Date.now()}.webm`;
+      const videoFile = new File([blob], names, { type: "video/webm" });
       const dataOfVdo = await uploadToS3(videoFile);
       const scoreResult = await getScore(scorePrompt);
       const r = await extractContentFormatted(scoreResult);
@@ -224,7 +225,7 @@ export const useMainhook = () => {
       dispatch(setStoreResult({ token: token }));
       setShouldSaveData(true);
     } catch (error) {
-      setErrorx("Something went wrong while posting data to the DB");
+      setErrorx("Something went wrong..!");
       console.log("Error posting data to the API:", error);
     } finally {
       SetShowCamera(false);

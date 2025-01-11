@@ -192,8 +192,8 @@ const uploadToS3 = async (blob) => {
     endpoint: "https://fra1.digitaloceanspaces.com",
     region: "us-east-1",
     credentials: {
-      accessKeyId: process.env.S3_ACCESS_KEY,
-      secretAccessKey: process.env.S3_SECRET_KEY,
+      accessKeyId: "DO00Y6E98L82H7GRXJK7",
+      secretAccessKey: "HYsQivlnYjpGrNSofVHlPmo0f75Y31Hs3wHZA6ZLwlk",
     },
   });
 

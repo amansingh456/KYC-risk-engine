@@ -7,8 +7,9 @@ import { useRouter } from "next/navigation";
 import { useSearchParams } from "next/navigation";
 import { useDispatch } from "react-redux";
 import { setUserEmail, setUserToken } from "./store/counterSlice";
+import { Suspense } from "react";
 
-export default function Home() {
+function HomeContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const dispatch = useDispatch();
@@ -59,5 +60,13 @@ export default function Home() {
         </footer>
       </div>
     </div>
+  );
+}
+
+export default function Home() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <HomeContent />
+    </Suspense>
   );
 }

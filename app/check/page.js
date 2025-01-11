@@ -70,7 +70,7 @@ const Interaction = () => {
         {!isProcessStart && (
           <button
             onClick={handleStart}
-            className="px-6 py-3 w-full text-white text-xl bg-green-700 rounded-md hover:bg-green-900 transition"
+            className="px-2  w-full text-white text-xl bg-gradient-to-r from-green-300 to-green-700  rounded-md hover:bg-green-800 transition"
           >
             Start
           </button>
@@ -89,9 +89,9 @@ const Interaction = () => {
         {showReviewButton && (
           <button
             onClick={handleReview}
-            className="px-6 py-3 w-full text-white text-xl bg-green-700 rounded-md hover:bg-green-900 transition"
+            className="p-2 w-full text-white text-xl bg-gradient-to-r from-green-300 to-green-700  rounded-md hover:bg-green-800 transition"
           >
-            Review
+            Finish It
           </button>
         )}
       </div>

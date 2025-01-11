@@ -1,48 +1,63 @@
 "use client";
+import { useEffect } from "react";
+import Lottie from "lottie-react";
+import animationData from "../public/animationLottie.json";
+import Toggel from "./components/Toggel";
 import { useRouter } from "next/navigation";
-import { motion } from "framer-motion";
-
-import { Suspense } from "react";
+import { useSearchParams } from "next/navigation";
+import { useDispatch } from "react-redux";
+import { setUserEmail, setUserToken } from "./store/counterSlice";
 
 export default function Home() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const dispatch = useDispatch();
+  const email = searchParams.get("email");
+  const token = searchParams.get("token");
 
+  useEffect(() => {
+    if (email && token) {
+      dispatch(setUserEmail(email));
+      dispatch(setUserToken(token));
+    }
+  }, [email, token]);
   return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <div className="flex h-screen bg-black items-center justify-center relative">
-        {/* Gradient background */}
-        <motion.div
-          className="absolute inset-0 bg-gradient-to-br from-gray-900 to-black z-[-1]"
-          animate={{ opacity: [0, 1, 0] }}
-          transition={{ duration: 5, repeat: Infinity }}
-        ></motion.div>
+    <div className="flex h-screen bg-gradient-to-br from-gray-900 to-black items-center justify-center">
+      <div className="w-[375px] h-[600px] bg-gradient-to-b from-green-50 to-white rounded-3xl shadow-2xl flex flex-col justify-between p-6">
+        <h1 className="text-3xl font-extrabold text-gray-800 text-center mb-4">
+          Video KYC
+        </h1>
 
-        {/* Main card */}
-        <motion.div
-          className="relative w-[375px] h-[667px] bg-gradient-to-br from-gray-100 to-gray-200 rounded-3xl shadow-2xl flex flex-col items-center justify-center"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 1 }}
-          whileHover={{ scale: 1.05 }}
-        >
-          {/* Header */}
-          <h1 className="text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 mb-6">
-            Video KYC
-          </h1>
+        <div className="w-full h-[30%] flex items-center justify-center">
+          <Lottie animationData={animationData} loop={true} className="w-60" />
+        </div>
 
-          {/* Button */}
+        <p className="text-lg font-bold text-gray-700 text-center mb-4">
+          Let’s first get to know you...
+        </p>
+
+        <div className="flex justify-center items-center">
+          <label className="text-sm  text-gray-700 text-center">
+            Prefer Language ?
+          </label>
+
+          <Toggel />
+        </div>
+
+        {/* Footer */}
+        <footer className="mt-6">
           <button
             onClick={() => router.push("/check")}
-            className="px-8 py-4 text-lg font-bold text-white bg-gradient-to-r from-blue-600 to-purple-600 rounded-full shadow-lg hover:shadow-xl hover:scale-110 transition duration-300"
+            className="bg-gradient-to-r from-green-300 to-green-700 p-2 rounded-lg w-[100%] text-white font-bold"
           >
             Let's Start
           </button>
-          <footer className="text-[12px] text-black italic flex items-right justify-right mt-10">
+          <div className="italic text-sm flex items-end justify-end text-black mt-1">
             Powered By
-            <span className="font-bold  rounded-md pl-1">DETEX.Tech</span>
-          </footer>
-        </motion.div>
+            <span className="font-bold pl-1">DETEX.Tech</span>
+          </div>
+        </footer>
       </div>
-    </Suspense>
+    </div>
   );
 }

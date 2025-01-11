@@ -5,7 +5,8 @@ import { getQuestionFromLLM, listen, playAudio } from "../utils/funcs";
 import { useDispatch, useSelector } from "react-redux";
 import {
   setNextQuestion,
-  setPromptQuestionData,
+  setReduxEnglishQuestion,
+  setReduxHinidQuestion,
   setScorePrompt,
   setStoreResult,
 } from "../store/counterSlice";
@@ -15,6 +16,7 @@ import {
   getScore,
   uploadToS3,
 } from "../utils/api";
+import { englishPrompt, hindiPrompt } from "../utils/promptRequests";
 
 export const useMainhook = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -30,13 +32,47 @@ export const useMainhook = () => {
   const [shouldSaveData, setShouldSaveData] = useState(false);
   const [isHandleStartClicked, setIsHandleStartClicked] = useState(false);
   const [countErr, setCountErr] = useState(0);
+  const {
+    language,
+    scorePrompt,
+    storeResult,
+    token,
+    email,
+    reduxHindiQuestion,
+    reduxEnglishQuestion,
+  } = useSelector((state) => state.counterSlice);
 
-  const { promptQuestion, scorePrompt, storeResult } = useSelector(
-    (state) => state.counterSlice
-  );
+  const [promptHinidQuestion, setPromptHinidQuestionData] = useState([
+    {
+      role: "system",
+      content: "You are a helpful assistant.",
+    },
+    {
+      role: "user",
+      content: hindiPrompt(token),
+    },
+  ]);
+  const [promptEnglishQuestion, setPromptEnglishQuestionData] = useState([
+    {
+      role: "system",
+      content: "You are a helpful assistant.",
+    },
+    {
+      role: "user",
+      content: englishPrompt(token),
+    },
+  ]);
+
   const dispatch = useDispatch();
-  const obj = [...promptQuestion];
   const regex = /\b(thank\s?you|thankyou)\b[\W]*$/i;
+  const wantVoice = language === "English" ? "en-IN-isha" : "hi-IN-ayushi";
+  const wantNative = language === "English" ? "en-IN" : "hi-IN";
+  const obj =
+    language === "English" ? promptEnglishQuestion : promptHinidQuestion;
+  const nextFollowingObject =
+    language === "English"
+      ? [...reduxEnglishQuestion]
+      : [...reduxHindiQuestion];
 
   const handleStart = async () => {
     if (isHandleStartClicked) return;
@@ -45,39 +81,10 @@ export const useMainhook = () => {
     if (isOK) {
       setIsProcessStart(true);
 
-      //! System Intro
-      setIsLoading(true);
-      try {
-        const voice = await createSpeech(
-          "नमस्कार, मै डिटेक्स की केवाईसी एजेंट हू"
-        );
-
-        const audioBlob = new Blob([voice.data], { type: "audio/mpeg" });
-        const audioUrl = URL.createObjectURL(audioBlob);
-        const audio = new Audio(audioUrl);
-
-        //! use myra.ai for girl best audio....
-        // const audioUrl = voice.audioFile;
-        // const audio = new Audio(audioUrl);
-
-        setIsLoading(false);
-        setShowAnsBox("नमस्कार, मै DETEX की केवाईसी एजेंट हू");
-        setIsSystemSpeaking(true);
-        await playAudio(audio);
-      } catch (error) {
-        setIsLoading(false);
-        setIsSystemSpeaking(false);
-        setShowAnsBox(false);
-        setErrorx(
-          "something went wrong while creating speech or playing audio"
-        );
-        return;
-      }
-
       //! First Question
       try {
         setIsLoading(true);
-        const initialQuestion = await getQuestionFromLLM(promptQuestion);
+        const initialQuestion = await getQuestionFromLLM(obj);
         dispatch(setNextQuestion(initialQuestion));
         setQuestionCount((prev) => prev + 1);
       } catch (error) {
@@ -104,27 +111,31 @@ export const useMainhook = () => {
 
   const handleFlow = async (question) => {
     setIsLoading(true);
-    dispatch(setPromptQuestionData({ role: "system", content: question }));
-    dispatch(setScorePrompt(JSON.stringify({ question: question })));
+    language === "English"
+      ? dispatch(setReduxEnglishQuestion({ role: "system", content: question }))
+      : dispatch(setReduxHinidQuestion({ role: "system", content: question }));
 
+    nextFollowingObject.push({ role: "system", content: question });
+
+    dispatch(setScorePrompt(JSON.stringify({ question: question })));
     dispatch(setStoreResult({ ques: question }));
-    obj.push({ role: "system", content: question });
 
     let voice;
     try {
-      voice = await createSpeech(question);
-
-      const audioBlob = new Blob([voice.data], { type: "audio/mpeg" });
-      const audioUrl = URL.createObjectURL(audioBlob);
-      const audio = new Audio(audioUrl);
-      // //! use myra.ai for girl best audio....
-      // const audioUrl = voice.audioFile;
+      voice = await createSpeech(question, wantVoice, wantNative);
+      // const audioBlob = new Blob([voice.data], { type: "audio/mpeg" });
+      // const audioUrl = URL.createObjectURL(audioBlob);
       // const audio = new Audio(audioUrl);
+      // //! use myra.ai for girl best audio....
+      const audioUrl = voice.audioFile;
+      const audio = new Audio(audioUrl);
 
       setIsLoading(false);
+
       setShowAnsBox("Please listen carefully .... !!");
       setIsSystemSpeaking(true);
       await playAudio(audio);
+
       setShowAnsBox(false);
       setIsSystemSpeaking(false);
     } catch (error) {
@@ -156,19 +167,27 @@ export const useMainhook = () => {
 
     let userAnswer = "";
     try {
-      userAnswer = await listen();
+      userAnswer = await listen(wantNative);
       if (!userAnswer) throw new Error("No response detected");
 
       setIsLoading(true);
       setShowSpinerTimer(false);
       setShowAnsBox(false);
 
-      dispatch(setPromptQuestionData({ role: "user", content: userAnswer }));
-      dispatch(setScorePrompt(JSON.stringify({ answer: userAnswer })));
-      obj.push({ role: "user", content: userAnswer });
+      language === "English"
+        ? dispatch(
+            setReduxEnglishQuestion({ role: "user", content: userAnswer })
+          )
+        : dispatch(
+            setReduxHinidQuestion({ role: "user", content: userAnswer })
+          );
 
+      nextFollowingObject.push({ role: "user", content: userAnswer });
+
+      dispatch(setScorePrompt(JSON.stringify({ answer: userAnswer })));
       dispatch(setStoreResult({ ans: userAnswer }));
-      const nextQues = await getQuestionFromLLM(obj);
+
+      const nextQues = await getQuestionFromLLM(nextFollowingObject);
       dispatch(setNextQuestion(nextQues));
       setQuestionCount((prev) => prev + 1);
     } catch (error) {
@@ -186,27 +205,26 @@ export const useMainhook = () => {
 
   const handleReview = async () => {
     try {
-      setIsLoading(true);
       setShowReviewButton(false);
-      const vidUrl = await stopRecording();
-      const blob = new Blob([vidUrl], { type: "video/webm" });
-      const name = `recording-${Date.now().toString(16)}-${Math.random()
-        .toString(16)
-        .substring(2, 10)}`;
-      const videoFile = new File([blob], name);
-      console.log(videoFile, "pppppp");
-      const dataOfVdo = await uploadToS3(videoFile);
+      setIsLoading(true);
 
+      const vidUrl = await stopRecording();
+
+      const blob = new Blob([vidUrl], { type: "video/webm" });
+      const videoFile = new File([blob], { type: "video/webm" });
+      const dataOfVdo = await uploadToS3(videoFile);
       const scoreResult = await getScore(scorePrompt);
       const r = await extractContentFormatted(scoreResult);
 
       setIsLoading(false);
       dispatch(setStoreResult({ confidenceScore: r }));
       dispatch(setStoreResult({ videoLink: dataOfVdo?.fileUrl }));
+      dispatch(setStoreResult({ email: email }));
+      dispatch(setStoreResult({ token: token }));
       setShouldSaveData(true);
     } catch (error) {
       setErrorx("Something went wrong while posting data to the DB");
-      console.error("Error posting data to the API:", error);
+      console.log("Error posting data to the API:", error);
     } finally {
       SetShowCamera(false);
       setShowThankYouMsg(true);
@@ -215,8 +233,6 @@ export const useMainhook = () => {
       setIsSystemSpeaking(false);
       setQuestionCount(0);
       setShowSpinerTimer(false);
-
-      console.log("stopped recording function");
     }
   };
 
@@ -227,7 +243,6 @@ export const useMainhook = () => {
     const saveData = async () => {
       if (shouldSaveData) {
         try {
-          console.log(storeResult, "storeResult");
           const response = await fetch("/api/postResult", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -243,21 +258,14 @@ export const useMainhook = () => {
             console.error("Failed to save data:", errorData);
           }
         } catch (error) {
-          if (error.name === "AbortError") {
-            console.log("Fetch request was aborted.");
-          } else {
-            console.error("Error saving data:", error.message);
-          }
+          console.error("Error saving data:", error.message);
         } finally {
           SetShowCamera(false);
           setShowThankYouMsg(true);
           setShowAnsBox(false);
           setIsLoading(false);
           setIsSystemSpeaking(false);
-          // setQuestionCount(0);
           setShowSpinerTimer(false);
-          const data = await stopRecording();
-          console.log(data, "recording data");
         }
       }
     };
@@ -268,13 +276,6 @@ export const useMainhook = () => {
       controller.abort();
     };
   }, [shouldSaveData]);
-
-  // useEffect(() => {
-  //   if (countErr > 200) {
-  //     dispatch(setStoreResult({ reason: "Not showing face" }));
-  //     setShouldSaveData(true);
-  //   }
-  // }, [countErr]);
 
   return {
     handleStart,

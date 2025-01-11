@@ -5,8 +5,4 @@ export const store = configureStore({
   reducer: {
     counterSlice,
   },
-  // middleware: (getDefaultMiddleware) =>
-  //   getDefaultMiddleware().concat(middleware),
 });
-
-// setupListeners(store.dispatch);

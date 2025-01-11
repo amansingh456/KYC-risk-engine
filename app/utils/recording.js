@@ -1,9 +1,6 @@
-let mediaRecorder;
 let recordedChunks = [];
-import { path } from "path";
-
+let mediaRecorder;
 export const startRecording = async () => {
-  recordedChunks = [];
   try {
     const stream = await navigator.mediaDevices.getUserMedia({
       video: { width: 1280, height: 720 },
@@ -24,18 +21,18 @@ export const startRecording = async () => {
         };
 
         mediaRecorder.onerror = (err) => {
-          console.error("MediaRecorder error:", err);
+          console.log("MediaRecorder error:", err);
           reject(new Error("MediaRecorder failed to start."));
         };
 
         mediaRecorder.start();
       } catch (err) {
-        console.error("Error initializing MediaRecorder:", err);
+        console.log("Error initializing MediaRecorder:", err);
         reject(new Error("Unable to initialize MediaRecorder."));
       }
     });
   } catch (err) {
-    console.error("Error accessing media devices:", err);
+    console.log("Error accessing media devices:", err);
     throw new Error("Camera permissions are not granted.");
   }
 };
@@ -68,10 +65,8 @@ export const stopRecording = async () => {
     if (mediaRecorder && mediaRecorder.state !== "inactive") {
       mediaRecorder.onstop = async () => {
         const blob = new Blob(recordedChunks, { type: "video/webm" });
-        console.log("Recording stopped");
 
         try {
-          console.log("resolved---->");
           resolve(blob);
         } catch (error) {
           reject(new Error("Failed to save in file"));
@@ -79,7 +74,6 @@ export const stopRecording = async () => {
       };
 
       mediaRecorder.onerror = (err) => {
-        console.error("MediaRecorder stop error:", err);
         reject(new Error("Failed to stop MediaRecorder."));
       };
 

@@ -1,4 +1,8 @@
-import { promptQuestionPool, reviewPrompt } from "../utils/promptRequests";
+import {
+  englishPromptCopy,
+  hindiPromptCopy,
+  reviewPrompt,
+} from "../utils/promptRequests";
 const { createSlice } = require("@reduxjs/toolkit");
 
 const initialState = {
@@ -6,14 +10,25 @@ const initialState = {
   storeResult: [],
   email: "",
   token: "",
-  promptQuestion: [
+  language: "English",
+  reduxHindiQuestion: [
     {
       role: "system",
       content: "You are a helpful assistant.",
     },
     {
       role: "user",
-      content: promptQuestionPool,
+      content: hindiPromptCopy,
+    },
+  ],
+  reduxEnglishQuestion: [
+    {
+      role: "system",
+      content: "You are a helpful assistant.",
+    },
+    {
+      role: "user",
+      content: englishPromptCopy,
     },
   ],
   scorePrompt: [
@@ -42,10 +57,21 @@ const counterSlice = createSlice({
     setUserToken: (state, action) => {
       state.token = action.payload;
     },
-
-    setPromptQuestionData: (state, action) => {
-      state.promptQuestion = [...state.promptQuestion, action.payload];
+    setLanguage: (state, action) => {
+      state.language = action.payload;
     },
+
+    setReduxHinidQuestion: (state, action) => {
+      state.reduxHindiQuestion = [...state.reduxHindiQuestion, action.payload];
+    },
+
+    setReduxEnglishQuestion: (state, action) => {
+      state.reduxEnglishQuestion = [
+        ...state.reduxEnglishQuestion,
+        action.payload,
+      ];
+    },
+
     setStoreResult: (state, action) => {
       state.storeResult = [...state.storeResult, action.payload];
     },
@@ -57,42 +83,18 @@ const counterSlice = createSlice({
         ? `${reviewPromptContent} ${newString}`
         : newString;
     },
-    setResetReduxState: (state) => {
-      state.nextQuestion = "";
-      state.storeResult = [];
-      state.promptQuestion = [
-        {
-          role: "system",
-          content: "You are a helpful assistant.",
-        },
-        {
-          role: "user",
-          content: promptQuestionPool,
-        },
-      ];
-      state.scorePrompt = [
-        {
-          role: "assistant",
-          content: [
-            {
-              type: "text",
-              text: reviewPrompt,
-            },
-          ],
-        },
-      ];
-    },
   },
 });
 
 export const {
-  setPromptQuestionData,
+  setReduxHinidQuestion,
+  setReduxEnglishQuestion,
   setNextQuestion,
   setScorePrompt,
   setStoreResult,
-  setResetReduxState,
   setUserEmail,
   setUserToken,
+  setLanguage,
 } = counterSlice.actions;
 
 export default counterSlice.reducer;

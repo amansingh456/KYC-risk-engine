@@ -9,7 +9,6 @@ export const playAudio = (audio) => {
       ) {
         const audioContext = new (AudioContext || webkitAudioContext)();
         await audioContext.resume();
-        console.log("Audio context resumed for Safari compatibility.");
       }
       audio.play();
       audio.onended = resolve;
@@ -23,7 +22,7 @@ export const getQuestionFromLLM = async (prompt) => {
   return await extractContentFormatted(textDataFromLlm);
 };
 
-export const listen = async () => {
+export const listen = async (wantNative) => {
   if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
     alert("Your browser does not support audio capture.");
     throw new Error("Audio capture is not supported in this browser.");
@@ -46,9 +45,6 @@ export const listen = async () => {
         : "audio/mp4";
       const mediaRecorder = new MediaRecorder(stream, { mimeType });
 
-      // const mediaRecorder = new MediaRecorder(stream, {
-      //   mimeType: "audio/webm",
-      // });
       const audioChunks = [];
 
       mediaRecorder.ondataavailable = (event) => {
@@ -60,13 +56,11 @@ export const listen = async () => {
       mediaRecorder.onstop = async () => {
         const audioBlob = new Blob(audioChunks, { type: "audio/webm" });
 
-        // Convert Blob to a file for upload
         const audioFile = new File([audioBlob], "audio.webm", {
           type: "audio/webm",
         });
 
-        // Step 2: Send audio to Whisper API for transcription
-        const transcription = await createText(audioFile);
+        const transcription = await createText(audioFile, wantNative);
 
         resolve(transcription || "Sorry, I couldn't understand that.");
       };
@@ -83,3 +77,68 @@ export const listen = async () => {
     }
   });
 };
+
+// export const listen = async (wantNative) => {
+//   if (!("webkitSpeechRecognition" in window || "SpeechRecognition" in window)) {
+//     alert("Your browser does not support speech recognition.");
+//     throw new Error("Speech recognition is not supported in this browser.");
+//   }
+
+//   return new Promise((resolve, reject) => {
+//     try {
+//       const SpeechRecognition =
+//         window.SpeechRecognition || window.webkitSpeechRecognition;
+//       const recognition = new SpeechRecognition();
+
+//       recognition.lang = wantNative;
+//       recognition.interimResults = true;
+//       recognition.maxAlternatives = 1;
+
+//       let finalTranscript = "";
+//       let isListening = true;
+
+//       const stopListeningAfterTimeout = setTimeout(() => {
+//         isListening = false;
+//         recognition.stop();
+//       }, 15000);
+
+//       recognition.onstart = () => {};
+
+//       recognition.onresult = (event) => {
+//         for (let i = event.resultIndex; i < event.results.length; i++) {
+//           if (event.results[i].isFinal) {
+//             finalTranscript += event.results[i][0].transcript + " ";
+//           }
+//         }
+//       };
+
+//       recognition.onspeechend = () => {
+//         if (isListening) {
+//           recognition.stop();
+//           recognition.start();
+//         }
+//       };
+
+//       recognition.onerror = (error) => {
+//         clearTimeout(stopListeningAfterTimeout);
+//         reject("Error occurred during speech recognition. Please try again.");
+//       };
+
+//       recognition.onend = () => {
+//         if (isListening) {
+//           recognition.start();
+//         } else {
+//           clearTimeout(stopListeningAfterTimeout);
+//           resolve(
+//             finalTranscript.trim() || "Sorry, I couldn't understand that."
+//           );
+//         }
+//       };
+
+//       recognition.start();
+//     } catch (error) {
+//       console.error("Error initializing speech recognition:", error);
+//       reject("Speech recognition initialization failed. Please try again.");
+//     }
+//   });
+// };

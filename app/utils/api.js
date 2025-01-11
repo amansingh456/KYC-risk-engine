@@ -1,68 +1,79 @@
 import axios from "axios";
-import { S3, PutObjectCommand } from "@aws-sdk/client-s3";
+import {
+  S3Client,
+  S3,
+  PutObjectCommand,
+  CreateMultipartUploadCommand,
+  UploadPartCommand,
+  CompleteMultipartUploadCommand,
+} from "@aws-sdk/client-s3";
 
-const createSpeech = async (text) => {
+const generateToken = async () => {
+  let config = {
+    method: "get",
+    url: "https://api.murf.ai/v1/auth/token",
+    headers: {
+      Accept: "application/json",
+      "api-key": `${process.env.NEXT_PUBLIC_ENV_TSS}`,
+    },
+  };
+
   try {
-    const response = await axios({
-      method: "post",
-      url: "https://api.openai.com/v1/audio/speech",
-      headers: {
-        Authorization: `Bearer ${process.env.NEXT_PUBLIC_ENV_OPENAI_API}`,
-        "Content-Type": "application/json",
-      },
-      data: {
-        model: "tts-1",
-        input: text,
-        voice: "shimmer",
-        speed: 0.9,
-      },
-      responseType: "arraybuffer",
+    const res = await axios(config);
+    const token = res?.data?.token;
+    if (token) {
+      localStorage.setItem("authTokenMurf", token);
+    }
+
+    return token;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+const createSpeech = async (text, wantVoice, wantNative) => {
+  const tokenData =
+    localStorage.getItem("authTokenMurf") || (await generateToken());
+
+  try {
+    let data = JSON.stringify({
+      audioDuration: 0,
+      channelType: "MONO",
+      encodeAsBase64: false,
+      format: "WAV",
+      modelVersion: "GEN2",
+      multiNativeLocale: wantNative,
+      pitch: 0,
+      pronunciationDictionary: {},
+      rate: 0,
+      sampleRate: 24000,
+      style: "Conversational",
+      text: text,
+      variation: 1,
+      voiceId: wantVoice,
     });
-    return response;
+
+    const config = {
+      method: "post",
+      url: "https://api.murf.ai/v1/speech/generate",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+        token: tokenData,
+        "api-key": `${process.env.NEXT_PUBLIC_ENV_TSS}`,
+      },
+      data: data,
+    };
+
+    const response = await axios(config);
+    return response.data;
   } catch (error) {
     console.log("Error:", error.response ? error.response.data : error.message);
     return error;
   }
 };
 
-// const createSpeech = async (text) => {
-//   try {
-//     let data = JSON.stringify({
-//       voiceId: "hi-IN-ayushi",
-//       style: "Conversational",
-//       text: text,
-//       rate: 0,
-//       pitch: 0,
-//       sampleRate: 48000,
-//       format: "MP3",
-//       channelType: "MONO",
-//       pronunciationDictionary: {},
-//       encodeAsBase64: false,
-//       variation: 1,
-//       audioDuration: 0,
-//       modelVersion: "GEN2",
-//       multiNativeLocale: "hi-IN",
-//     });
-
-//     let config = {
-//       method: "post",
-//       url: "https://api.murf.ai/v1/speech/generate",
-//       headers: {
-//         "Content-Type": "application/json",
-//         Accept: "application/json",
-//         "api-key": `${process.env.NEXT_PUBLIC_ENV_TSS}`,
-//       },
-//       data: data,
-//     };
-
-//     const response = await axios(config);
-//     return response.data;
-//   } catch (error) {
-//     console.log("Error:", error.response ? error.response.data : error.message);
-//     return error;
-//   }
-// };
-
+// Optimize sendChatCompletion function
 const sendChatCompletion = async (promptMsg) => {
   try {
     const response = await axios.post(
@@ -80,6 +91,31 @@ const sendChatCompletion = async (promptMsg) => {
       }
     );
     return response.data;
+  } catch (error) {
+    console.log("Error:", error.response ? error.response.data : error.message);
+    return error;
+  }
+};
+
+// Optimize createText function
+const createText = async (audioFilePath, wantNative) => {
+  try {
+    const formData = new FormData();
+    formData.append("file", audioFilePath, "audio.mp3");
+    formData.append("model", "whisper-1");
+    formData.append("language", wantNative === "en-IN" ? "en" : "hi");
+
+    const response = await axios({
+      method: "post",
+      url: "https://api.openai.com/v1/audio/transcriptions",
+      headers: {
+        Authorization: `Bearer ${process.env.NEXT_PUBLIC_ENV_OPENAI_API}`,
+        "Content-Type": "multipart/form-data",
+      },
+      data: formData,
+    });
+
+    return response.data.text;
   } catch (error) {
     console.log("Error:", error.response ? error.response.data : error.message);
     return error;
@@ -127,56 +163,34 @@ const getScore = async (promptMsg) => {
   }
 };
 
-const createText = async (audioFilePath) => {
-  try {
-    const formData = new FormData();
-    formData.append("file", audioFilePath, "audio.mp3");
-    formData.append("model", "whisper-1");
-    formData.append("language", "hi");
-
-    const response = await axios({
-      method: "post",
-      url: "https://api.openai.com/v1/audio/transcriptions",
-      headers: {
-        Authorization: `Bearer ${process.env.NEXT_PUBLIC_ENV_OPENAI_API}`,
-        "Content-Type": "multipart/form-data",
-      },
-      data: formData,
-    });
-
-    return response.data.text;
-  } catch (error) {
-    console.log("Error:", error.response ? error.response.data : error.message);
-    return error;
-  }
-};
-
 const uploadToS3 = async (blob) => {
   const s3Client = new S3({
     endpoint: "https://fra1.digitaloceanspaces.com",
     region: "us-east-1",
     credentials: {
-      accessKeyId: "DO00Y6E98L82H7GRXJK7",
-      secretAccessKey: "HYsQivlnYjpGrNSofVHlPmo0f75Y31Hs3wHZA6ZLwlk",
+      accessKeyId: process.env.S3_ACCESS_KEY,
+      secretAccessKey: process.env.S3_SECRET_KEY,
     },
   });
 
+  const fileName = `detex-data/recording-${Date.now()}.webm`;
+  const bucketParams = {
+    Bucket: "stg-kyc-docs",
+    Key: fileName,
+    Body: blob,
+    ContentType: "video/webm",
+    ACL: "public-read",
+  };
+
   try {
-    const fileName = `detex-data/recording-${Date.now()}.webm`;
-
-    const bucketParams = {
-      Bucket: "stg-kyc-docs",
-      Key: fileName,
-      Body: blob,
-      ContentType: "video/webm",
-      ACL: "public-read",
-    };
-
     const response = await s3Client.send(new PutObjectCommand(bucketParams));
-    const fileUrl = `https://detex-kyc.blr1.digitaloceanspaces.com/${fileName}`;
+
+    const fileUrl = `https://fra1.digitaloceanspaces.com/stg-kyc-docs/${fileName}`;
+
+    console.log("Upload successful:", { fileUrl, response });
     return { success: true, fileUrl };
   } catch (error) {
-    console.error("Upload failed:", error);
+    console.log("Error whileUpload failed:", error);
     return { success: false, error };
   }
 };

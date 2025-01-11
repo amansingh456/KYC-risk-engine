@@ -70,7 +70,7 @@ const Interaction = () => {
         {!isProcessStart && (
           <button
             onClick={handleStart}
-            className="px-2  w-full text-white text-xl bg-gradient-to-r from-green-300 to-green-700  rounded-md hover:bg-green-800 transition"
+            className="p-2  w-full text-white text-xl bg-gradient-to-r from-green-300 to-green-700  rounded-md hover:bg-green-800 transition"
           >
             Start
           </button>

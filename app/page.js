@@ -1,13 +1,14 @@
 "use client";
-import { useEffect } from "react";
-import Lottie from "lottie-react";
+import { useEffect, Suspense } from "react";
 import animationData from "../public/animationLottie.json";
 import Toggel from "./components/Toggel";
 import { useRouter } from "next/navigation";
 import { useSearchParams } from "next/navigation";
 import { useDispatch } from "react-redux";
 import { setUserEmail, setUserToken } from "./store/counterSlice";
-import { Suspense } from "react";
+import dynamic from "next/dynamic";
+
+const LottieNoSSR = dynamic(() => import("lottie-react"), { ssr: false });
 
 function HomeContent() {
   const router = useRouter();
@@ -30,7 +31,11 @@ function HomeContent() {
         </h1>
 
         <div className="w-full h-[30%] flex items-center justify-center">
-          <Lottie animationData={animationData} loop={true} className="w-60" />
+          <LottieNoSSR
+            animationData={animationData}
+            loop={true}
+            className="w-60"
+          />
         </div>
 
         <p className="text-lg font-bold text-gray-700 text-center mb-4">

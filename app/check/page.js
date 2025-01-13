@@ -70,7 +70,7 @@ const Interaction = () => {
         {!isProcessStart && (
           <button
             onClick={handleStart}
-            className="p-2  w-full text-white text-xl bg-gradient-to-r from-green-300 to-green-700  rounded-md hover:bg-green-800 transition"
+            className="p-2  w-full text-white font-bold text-xl bg-gradient-to-r from-green-300 to-green-700  rounded-md hover:bg-green-800 transition"
           >
             Start
           </button>
@@ -89,7 +89,7 @@ const Interaction = () => {
         {showReviewButton && (
           <button
             onClick={handleReview}
-            className="p-2 w-full text-white text-xl bg-gradient-to-r from-green-300 to-green-700  rounded-md hover:bg-green-800 transition"
+            className="p-2 w-full text-white font-bold text-xl bg-gradient-to-r from-green-300 to-green-700  rounded-md hover:bg-green-800 transition"
           >
             Finish It
           </button>

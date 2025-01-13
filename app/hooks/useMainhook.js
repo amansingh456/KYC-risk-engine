@@ -122,19 +122,19 @@ export const useMainhook = () => {
 
     let voice;
     try {
-      voice = await createSpeech(question);
-      const audioBlob = new Blob([voice.data], { type: "audio/mpeg" });
-      const audioUrl = URL.createObjectURL(audioBlob);
-      const audio = new Audio(audioUrl);
-      // // //! use myra.ai for girl best audio....
-      // voice = await createSpeech(question, wantVoice, wantNative);
-      // const audioUrl = voice.audioFile;
+      // voice = await createSpeech(question);
+      // const audioBlob = new Blob([voice.data], { type: "audio/mpeg" });
+      // const audioUrl = URL.createObjectURL(audioBlob);
       // const audio = new Audio(audioUrl);
+      // // //! use myra.ai for girl best audio....
+      voice = await createSpeech(question, wantVoice, wantNative);
+      const audioUrl = voice.audioFile;
+      const audio = new Audio(audioUrl);
 
-      setIsLoading(false);
-
-      setShowAnsBox(question);
       setIsSystemSpeaking(true);
+      setIsLoading(false);
+      setShowAnsBox(question);
+
       await playAudio(audio);
 
       setShowAnsBox(false);

@@ -137,6 +137,7 @@ export function saveToLocalStorage(key, value) {
     timestamp: new Date().toISOString(),
   };
   localStorage.setItem(key, JSON.stringify(data));
+  return data;
 }
 
 export function getFromLocalStorage(key) {

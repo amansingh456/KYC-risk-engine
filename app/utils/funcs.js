@@ -17,6 +17,59 @@ export const playAudio = (audio) => {
   });
 };
 
+//! for changing tab stop audio.
+// export const playAudio = (audio) => {
+//   return new Promise(async (resolve, reject) => {
+//     try {
+//       let audioContext;
+
+//       if (
+//         typeof AudioContext !== "undefined" ||
+//         typeof webkitAudioContext !== "undefined"
+//       ) {
+//         audioContext = new (AudioContext || webkitAudioContext)();
+//         await audioContext.resume();
+//       }
+
+//       audio.play();
+
+//       audio.onended = resolve;
+//       audio.onerror = reject;
+
+//       const handleVisibilityChange = () => {
+//         if (document.visibilityState === "hidden") {
+//           audio.pause();
+//           audio.currentTime = 0;
+//           if (audioContext) audioContext.close();
+//           cleanup();
+//           reject(new Error("Audio stopped due to page becoming hidden"));
+//         }
+//       };
+
+//       const handlePageHide = () => {
+//         audio.pause();
+//         audio.currentTime = 0;
+//         if (audioContext) audioContext.close();
+//         cleanup();
+//         reject(new Error("Audio stopped due to page navigation or unload"));
+//       };
+
+//       document.addEventListener("visibilitychange", handleVisibilityChange);
+//       window.addEventListener("pagehide", handlePageHide);
+
+//       const cleanup = () => {
+//         document.removeEventListener(
+//           "visibilitychange",
+//           handleVisibilityChange
+//         );
+//         window.removeEventListener("pagehide", handlePageHide);
+//       };
+//     } catch (error) {
+//       reject(error);
+//     }
+//   });
+// };
+
 export const getQuestionFromLLM = async (prompt) => {
   const textDataFromLlm = await sendChatCompletion(prompt);
   return await extractContentFormatted(textDataFromLlm);

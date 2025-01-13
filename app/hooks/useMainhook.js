@@ -133,7 +133,7 @@ export const useMainhook = () => {
 
       setIsLoading(false);
 
-      setShowAnsBox("Please listen carefully .... !!");
+      setShowAnsBox(question);
       setIsSystemSpeaking(true);
       await playAudio(audio);
 

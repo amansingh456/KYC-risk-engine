@@ -11,6 +11,7 @@ export default function WebcamCapture({
 }) {
   const [isCameraReady, setIsCameraReady] = useState(false);
   const [error, setError] = useState(null);
+  const [noFaceCount, setNoFaceCount] = useState(0);
   const videoConstraints = {
     width: 1280,
     height: 720,
@@ -45,27 +46,32 @@ export default function WebcamCapture({
           video,
           new faceapi.TinyFaceDetectorOptions({
             inputSize: 416,
-            scoreThreshold: 0.5,
+            scoreThreshold: 0.4,
           })
         );
 
         if (detection) {
           onFaceDetected(true);
           setError(null);
+          setNoFaceCount(0);
         } else {
-          onFaceDetected(false);
-          setCountErr((prev) => prev + 1);
-          setError("Face not detected! Keep your face in the center.");
+          setNoFaceCount((prev) => prev + 1);
+
+          if (noFaceCount >= 3) {
+            onFaceDetected(false);
+            setCountErr((prev) => prev + 1);
+            setError("Face not detected! Keep your face in the center.");
+          }
         }
       }
     };
 
     if (isCameraReady) {
-      interval = setInterval(detectFace, 500);
+      interval = setInterval(detectFace, 400);
     }
 
     return () => clearInterval(interval);
-  }, [isCameraReady, webcamRef, onFaceDetected]);
+  }, [isCameraReady, webcamRef, onFaceDetected, noFaceCount]);
 
   return (
     <div>

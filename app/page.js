@@ -24,7 +24,7 @@ function HomeContent() {
     }
   }, [email, token]);
   return (
-    <div className="flex h-screen bg-gradient-to-br from-gray-900 to-black items-center justify-center">
+    <div className="flex h-screen bg-gradient-to-br items-center justify-center">
       <div className="w-[375px] h-[600px] bg-gradient-to-b from-green-100 to-white rounded-3xl shadow-2xl flex flex-col justify-between p-6">
         <h1 className="text-3xl font-extrabold text-gray-800 text-center mb-4">
           Video KYC

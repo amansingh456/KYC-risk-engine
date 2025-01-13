@@ -104,7 +104,7 @@ const Interaction = () => {
         </div>
       )}
 
-      <footer className="text-[12px] text-black italic flex items-right justify-right">
+      <footer className="text-[12px] w-full text-black italic flex items-end justify-end p-2">
         Powered By
         <span className="font-bold rounded-md pl-1">DETEX.Tech</span>
       </footer>

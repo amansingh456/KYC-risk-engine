@@ -16,7 +16,7 @@ export const AnswerBox = ({ text }) => {
           }
           return (prev + 1) % words.length;
         });
-      }, 650);
+      }, 450);
       return () => clearInterval(interval);
     }
   }, [words.length, animationCompleted]);

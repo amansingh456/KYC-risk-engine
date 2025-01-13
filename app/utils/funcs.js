@@ -78,6 +78,30 @@ export const listen = async (wantNative) => {
   });
 };
 
+export function saveToLocalStorage(key, value) {
+  const data = {
+    value: value,
+    timestamp: new Date().toISOString(),
+  };
+  localStorage.setItem(key, JSON.stringify(data));
+}
+
+export function getFromLocalStorage(key) {
+  const data = localStorage.getItem(key);
+  if (data) {
+    const parsedData = JSON.parse(data);
+    const currentTime = new Date().getTime();
+    const storedTime = new Date(parsedData.timestamp).getTime();
+    if (currentTime - storedTime <= 1200000) {
+      return {
+        value: parsedData.value,
+        timestamp: parsedData.timestamp,
+      };
+    }
+  }
+  return null;
+}
+
 // export const listen = async (wantNative) => {
 //   if (!("webkitSpeechRecognition" in window || "SpeechRecognition" in window)) {
 //     alert("Your browser does not support speech recognition.");

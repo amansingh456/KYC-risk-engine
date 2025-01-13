@@ -8,96 +8,86 @@ import {
   UploadPartCommand,
   CompleteMultipartUploadCommand,
 } from "@aws-sdk/client-s3";
+import { getFromLocalStorage, saveToLocalStorage } from "./funcs";
+require("dotenv").config();
 
-const generateToken = async () => {
-  let config = {
-    method: "get",
-    url: "https://api.murf.ai/v1/auth/token",
-    headers: {
-      Accept: "application/json",
-      "api-key": `${process.env.NEXT_PUBLIC_ENV_TSS}`,
-    },
-  };
-
+const fetchToken = async () => {
   try {
-    const res = await axios(config);
-    const token = res?.data?.token;
-    if (token) {
-      localStorage.setItem("authTokenMurf", token);
+    const res = await fetch("/api/tokenMurf");
+    const data = await res.json();
+
+    if (res.ok) {
+      saveToLocalStorage("detexToken", data.token);
+      return data;
     }
-
-    return token;
   } catch (error) {
-    console.log(error);
+    console.error("Fetch error:", error);
   }
 };
 
-const createSpeech = async (text) => {
-  try {
-    const response = await axios({
-      method: "post",
-      url: "https://api.openai.com/v1/audio/speech",
-      headers: {
-        Authorization: `Bearer ${process.env.NEXT_PUBLIC_ENV_OPENAI_API}`,
-        "Content-Type": "application/json",
-      },
-      data: {
-        model: "tts-1",
-        input: text,
-        voice: "shimmer",
-        speed: 0.9,
-      },
-      responseType: "arraybuffer",
-    });
-
-    return response;
-  } catch (error) {
-    console.log("Error:", error.response ? error.response.data : error.message);
-    return error;
-  }
-};
-
-// const createSpeech = async (text, wantVoice, wantNative) => {
-//   const tokenData =
-//     localStorage.getItem("authTokenMurf") || (await generateToken());
-
+// const createSpeech = async (text) => {
 //   try {
-//     let data = JSON.stringify({
-//       audioDuration: 0,
-//       channelType: "MONO",
-//       encodeAsBase64: false,
-//       format: "WAV",
-//       modelVersion: "GEN2",
-//       multiNativeLocale: wantNative,
-//       pitch: 0,
-//       pronunciationDictionary: {},
-//       rate: 0,
-//       sampleRate: 24000,
-//       style: "Conversational",
-//       text: text,
-//       variation: 1,
-//       voiceId: wantVoice,
+//     const response = await axios({
+//       method: "post",
+//       url: "https://api.openai.com/v1/audio/speech",
+//       headers: {
+//         Authorization: `Bearer ${process.env.NEXT_PUBLIC_ENV_OPENAI_API}`,
+//         "Content-Type": "application/json",
+//       },
+//       data: {
+//         model: "tts-1",
+//         input: text,
+//         voice: "shimmer",
+//         speed: 0.9,
+//       },
+//       responseType: "arraybuffer",
 //     });
 
-//     const config = {
-//       method: "post",
-//       url: "https://api.murf.ai/v1/speech/generate",
-//       headers: {
-//         "Content-Type": "application/json",
-//         Accept: "application/json",
-//         token: tokenData,
-//         "api-key": `${process.env.NEXT_PUBLIC_ENV_TSS}`,
-//       },
-//       data: data,
-//     };
-
-//     const response = await axios(config);
-//     return response.data;
+//     return response;
 //   } catch (error) {
 //     console.log("Error:", error.response ? error.response.data : error.message);
 //     return error;
 //   }
 // };
+
+const createSpeech = async (text, wantVoice, wantNative) => {
+  const tokenData = getFromLocalStorage("detexToken") || (await fetchToken());
+  try {
+    let data = JSON.stringify({
+      audioDuration: 0,
+      channelType: "MONO",
+      encodeAsBase64: false,
+      format: "WAV",
+      modelVersion: "GEN2",
+      multiNativeLocale: wantNative,
+      pitch: 0,
+      pronunciationDictionary: {},
+      rate: 0,
+      sampleRate: 24000,
+      style: "Conversational",
+      text: text,
+      variation: 1,
+      voiceId: wantVoice,
+    });
+
+    const config = {
+      method: "post",
+      url: "https://api.murf.ai/v1/speech/generate",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+        token: tokenData.value,
+      },
+      data: data,
+    };
+
+    const response = await axios(config);
+    return response.data;
+  } catch (error) {
+    console.log("Error:", error.response ? error.response.data : error.message);
+    return error;
+  }
+};
 
 // Optimize sendChatCompletion function
 const sendChatCompletion = async (promptMsg) => {
